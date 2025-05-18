@@ -315,7 +315,6 @@ async function fetchM3u8Content(url, cookies, referer) {
   }
 }
 
-// Helper function: Process M3U8 content to handle relative URLs
 // Helper function: Process M3U8 content to rewrite URLs to go through proxy
 function processM3u8Content(content, baseUrl, videoId) {
   if (!content || !baseUrl) return content;
@@ -480,6 +479,7 @@ function processM3u8Content(content, baseUrl, videoId) {
     return content; // Return the original content if processing fails
   }
 }
+
 // Core function: Fetches the page and extracts video information
 async function scrapeVideo(videoId) {
   if (!videoId) {
@@ -823,31 +823,7 @@ app.get("/api/videos/:videoId/cookies", (req, res) => {
 
 // Proxy M3U8 content with proper authentication
 // Proxy M3U8 content with proper authentication
-app.get("/api/proxy/m3u8", async (req, res) => {
-  try {
-    const { url, videoId } = req.query;
-    
-    if (!url) {
-      return res.status(400).json({
-        success: false,
-        error: "URL parameter is required"
-      });
-    }
-    
-    // Get cookies either from query or from stored video info
-    let cookies = req.query.cookies;
-    
-    if (!cookies && videoId) {
-      try {
-        const infoPath = path.join(process.cwd(), "output", videoId, "info.json");
-        if (fs.existsSync(infoPath)) {
-          const videoInfo = JSON.parse(fs.readFileSync(infoPath, "utf8"));
-          cookies = videoInfo.simpleCookieFormat || videoInfo.cookies;
-        }
-      } catch (error) {
-        console.error(`Error retrieving cookies for videoId ${videoId}: ${error.message}`);
-      }
-    }
+
     
     // Default referer based on hostname or use the one provided
     const urlObj = new URL(url);
